@@ -37,6 +37,3 @@ def generate_grid(x_size: int, y_size: int, values):
             grid = add_line_to_grid(grid, line2)
 
     return grid
-
-grid = generate_grid(8, 8, [["M"]])
-print(grid)

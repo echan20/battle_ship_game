@@ -1,0 +1,2 @@
+GRID_SIZE_X = 8
+GRID_SIZE_Y = 8
