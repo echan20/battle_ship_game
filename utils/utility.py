@@ -1,5 +1,4 @@
-from utils.database import db
-from utils.output import input_options
+from utils.output import input_custom
 from config import GRID_SIZE_X, GRID_SIZE_Y
 import string
 
@@ -19,17 +18,40 @@ def prompt_for_grid_space():
         allowed_y_spaces.append(str(row_key + 1))
         allowed_y_spaces_map[str(row_key + 1)] = row_key
 
-    x = input_options("Select a column: ", allowed_x_spaces)
-    y = input_options("Select a row: ", allowed_y_spaces)
-    return allowed_x_spaces_map.get(x), allowed_y_spaces_map.get(y)
+    def validate_grid_input(input_text):
+        # Check if input has a valid column and row in either order
+        if len(input_text) != 2:
+            return False
+            
+        char1, char2 = input_text[0].upper(), input_text[1].upper()
+        
+        # Case 1: column then row (e.g: "A1")
+        case1_valid = (char1 in allowed_x_spaces and char2 in allowed_y_spaces)
+        
+        # Case 2: row then column (e.g: "1A")
+        case2_valid = (char1 in allowed_y_spaces and char2 in allowed_x_spaces)
+        
+        # Return true if either case is valid
+        return case1_valid or case2_valid
+    
+    grid_input = input_custom("Enter coordinates (e.g. A1): ", validate_grid_input)
+    char1, char2 = grid_input[0].upper(), grid_input[1].upper()
+    
+    # Determine which format was used (A1 or 1A) and return the correct coordinates
+    if char1 in allowed_x_spaces and char2 in allowed_y_spaces:
+        # Format is A1 (column then row)
+        return allowed_x_spaces_map[char1], allowed_y_spaces_map[char2]
+    else:
+        # Format is 1A (row then column)
+        return allowed_x_spaces_map[char2], allowed_y_spaces_map[char1]
 
-def load_game_data():
-    game_db = db("game_data")
+def generate_empty_grid_data(grid_size_x, grid_size_y):
+    grid_data = []
 
-    user_boats = game_db.get("user_boats")
-    if (not user_boats):
-        user_boats = []
+    for _ in range(grid_size_x):
+        row = []
+        for _ in range(grid_size_y):
+            row.append("")
+        grid_data.append(row)
 
-    return {
-        "user_boats": user_boats
-    }
+    return grid_data

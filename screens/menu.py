@@ -1,5 +1,6 @@
 from config import MENU_OPTIONS
 from utils.output import print, input_options, clear_console
+from utils.saving import wipe_game_data
 
 def show_menu():
     clear_console()
@@ -22,6 +23,7 @@ def show_menu():
 
     play_game = False
     if (option_chosen == "1"):
+        wipe_game_data()
         play_game = True
     elif (option_chosen == "2"):
         play_game = True
