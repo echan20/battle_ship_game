@@ -5,6 +5,9 @@ DEBUG_MODE = True
 GRID_SIZE_X = 8
 GRID_SIZE_Y = 8
 
+# Game
+AMOUNT_OF_BOATS = 5
+
 # Screens
 MENU_OPTIONS = [
     ["New Game"],

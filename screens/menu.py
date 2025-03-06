@@ -1,8 +1,8 @@
 from config import MENU_OPTIONS
-from utils.output import print, inputOptions, clearConsole
+from utils.output import print, input_options, clear_console
 
 def show_menu():
-    clearConsole()
+    clear_console()
 
     menu_lines = []
     menu_lines.append("--- Battleships Game ---")
@@ -18,13 +18,18 @@ def show_menu():
     menu_text = ("\n").join(menu_lines)
     print(menu_text)
 
-    option_chosen = inputOptions("\nEnter an option: ", valid_inputs)
+    option_chosen = input_options("\nEnter an option: ", valid_inputs)
+
+    play_game = False
     if (option_chosen == "1"):
-        pass
+        play_game = True
     elif (option_chosen == "2"):
-        pass
+        play_game = True
     elif (option_chosen == "3"):
         return ["change_screen", "instructions"]
     elif (option_chosen == "4"):
         return ["game", "end"]
+    
+    if play_game:
+        return ["change_screen", "game"]
     return ["game", "continue"]

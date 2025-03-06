@@ -1,8 +1,8 @@
-from utils.output import print, clearConsole
+from utils.output import print, clear_console
 from config import INSTRUCTIONS
 
 def show_instructions():
-    clearConsole()
+    clear_console()
 
     instructions_text = ("\n").join(INSTRUCTIONS)
     print(instructions_text)
