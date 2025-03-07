@@ -7,7 +7,7 @@ from config import AMOUNT_OF_BOATS, GRID_SIZE_X, GRID_SIZE_Y, DEBUG_SHOW_BOT_BOA
 
 LETTER_KEYS = string.ascii_uppercase
 
-def inject_border_row(grid_data, rows, columns):
+def inject_border_row(grid_data, rows, columns, special_boxes=None):
     row_num = 0
 
     for row_id in range(rows):
@@ -21,6 +21,9 @@ def inject_border_row(grid_data, rows, columns):
         row = grid_data[row_id]
         row.insert(0, str(row_num))
 
+        if special_boxes:
+            special_boxes.append([0, row_id + 1, "bold_text"])
+
     key_row = []
     for column_id in range(columns + 1):
         # First column is reserved for Row IDs
@@ -31,6 +34,10 @@ def inject_border_row(grid_data, rows, columns):
             column_key = "F"
 
         key_row.append(column_key)
+
+        if special_boxes:
+            special_boxes.append([column_id, 0, "bold_text"])
+
     grid_data.insert(0, key_row)
 
     return grid_data
@@ -114,8 +121,8 @@ def show_game(override_show_grid_mode=None, user_grid_special_boxes=None, bot_gr
         bot_grid_data[y][x] = "M"
     
     # Inject border rows & render grids
-    transformed_user_grid_data = inject_border_row(user_grid_data, GRID_SIZE_X, GRID_SIZE_Y)
-    transformed_bot_grid_data = inject_border_row(bot_grid_data, GRID_SIZE_X, GRID_SIZE_Y)
+    transformed_user_grid_data = inject_border_row(user_grid_data, GRID_SIZE_X, GRID_SIZE_Y, user_grid_special_boxes)
+    transformed_bot_grid_data = inject_border_row(bot_grid_data, GRID_SIZE_X, GRID_SIZE_Y, bot_grid_special_boxes)
 
     user_grid = generate_grid(GRID_SIZE_X + 1, GRID_SIZE_Y + 1, transformed_user_grid_data, title="User's Grid", special_boxes=user_grid_special_boxes)
     bot_grid = generate_grid(GRID_SIZE_X + 1, GRID_SIZE_Y + 1, transformed_bot_grid_data, title="Bot's Grid", special_boxes=bot_grid_special_boxes)
