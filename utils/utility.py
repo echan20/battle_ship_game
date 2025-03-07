@@ -1,10 +1,11 @@
 from utils.output import input_custom
 from config import GRID_SIZE_X, GRID_SIZE_Y
 import string
+import random
 
 LETTER_KEYS = string.ascii_uppercase
 
-def prompt_for_grid_space():
+def prompt_for_grid_space(validator=None):
     allowed_x_spaces = []
     allowed_x_spaces_map = {}
     for column_key in range(GRID_SIZE_X):
@@ -38,12 +39,27 @@ def prompt_for_grid_space():
     char1, char2 = grid_input[0].upper(), grid_input[1].upper()
     
     # Determine which format was used (A1 or 1A) and return the correct coordinates
+    x = 0
+    y = 0
     if char1 in allowed_x_spaces and char2 in allowed_y_spaces:
         # Format is A1 (column then row)
-        return allowed_x_spaces_map[char1], allowed_y_spaces_map[char2]
+        x, y = allowed_x_spaces_map[char1], allowed_y_spaces_map[char2]
     else:
         # Format is 1A (row then column)
-        return allowed_x_spaces_map[char2], allowed_y_spaces_map[char1]
+        x, y = allowed_x_spaces_map[char2], allowed_y_spaces_map[char1]
+
+    # Custom validator
+    if (validator):
+        valid = validator(x, y)
+        if (valid != True):
+            return prompt_for_grid_space()
+        
+    return x, y
+
+def generate_random_grid_space(grid_size_x, grid_size_y):
+    x = random.randint(0, grid_size_x - 1)
+    y = random.randint(0, grid_size_y - 1)
+    return x, y
 
 def generate_empty_grid_data(grid_size_x, grid_size_y):
     grid_data = []
@@ -55,3 +71,21 @@ def generate_empty_grid_data(grid_size_x, grid_size_y):
         grid_data.append(row)
 
     return grid_data
+
+def check_hit(boats, x, y):
+    for boat in boats:
+        boatX = boat[0]
+        boatY = boat[1]
+        if (boatX == x and boatY == y):
+            return boat
+    return None
+
+def generate_place_ships_validator(user_boats):
+    def validator(x, y):
+        boat = check_hit(user_boats, x, y)
+        if boat:
+            print("This space has already been taken!")
+            return True
+        return False
+
+    return validator
