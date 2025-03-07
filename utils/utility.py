@@ -89,3 +89,26 @@ def generate_place_ships_validator(user_boats):
         return True
 
     return validator
+
+def merge_with_offset(str1, str2, offset):
+    """Merge two multi-line strings horizontally with an offset.
+    
+    Args:
+        str1: First string (can be multi-line).
+        str2: Second string (can be multi-line).
+        offset: Number of spaces between the end of str1's lines and str2's lines.
+        
+    Returns:
+        Merged string with aligned lines.
+    """
+    lines1 = str1.split('\n')
+    lines2 = str2.split('\n')
+    max_lines = max(len(lines1), len(lines2))
+    
+    # Pad shorter string with empty lines
+    lines1 += [''] * (max_lines - len(lines1))
+    lines2 += [''] * (max_lines - len(lines2))
+    
+    # Merge line-by-line with offset
+    merged = [f"{line1}{' ' * offset}{line2}" for line1, line2 in zip(lines1, lines2)]
+    return '\n'.join(merged)

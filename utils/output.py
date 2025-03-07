@@ -4,7 +4,7 @@ _print = print
 
 # Print to Console
 def clear_console():
-    print("\n" * 20)
+    print("\n" * 100)
 
 def print(*args):
     return _print(*args)

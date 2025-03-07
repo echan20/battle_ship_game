@@ -27,8 +27,16 @@ def add_line_to_grid(grid: str, line: str):
         grid += line
     return grid
 
-def generate_grid(x_size: int, y_size: int, values, has_borders: bool = True):
+def generate_grid(x_size: int, y_size: int, values, has_borders: bool = True, title: str = None):
     grid = ""
+    
+    # Calculate total width
+    total_width = (x_size * BOX_SIZE) + (x_size - 1) + (2 if has_borders else 0)
+    
+    # Add title if provided
+    if title:
+        centered_title = title.center(total_width)
+        grid = add_line_to_grid(grid, centered_title)
 
     # Generate Top Border
     if (has_borders):

@@ -2,7 +2,7 @@ import config
 import string
 from utils.grid import generate_grid
 from utils.output import print, clear_console
-from utils.utility import prompt_for_grid_space, generate_empty_grid_data, generate_place_ships_validator, generate_random_grid_space, check_hit
+from utils.utility import prompt_for_grid_space, generate_empty_grid_data, generate_place_ships_validator, generate_random_grid_space, check_hit, merge_with_offset
 from utils.saving import load_game_data, save_game_data
 from config import AMOUNT_OF_BOATS, GRID_SIZE_X, GRID_SIZE_Y, DEBUG_SHOW_BOT_BOATS
 
@@ -57,48 +57,54 @@ def show_game(override_show_grid_mode=None):
     if override_show_grid_mode:
         grid_mode = override_show_grid_mode
 
-    grid_data = generate_empty_grid_data(GRID_SIZE_X, GRID_SIZE_Y)
+    user_grid_data = generate_empty_grid_data(GRID_SIZE_X, GRID_SIZE_Y)
+    bot_grid_data = generate_empty_grid_data(GRID_SIZE_X, GRID_SIZE_Y)
 
-    if grid_mode == "user":
-        print(" User's Grid:")
-        # Show user's boats on the grid
-        for ship in user_boats:
+    # User's Grid
+    # Show user's boats on the grid
+    for ship in user_boats:
+        x = ship[0]
+        y = ship[1]
+        status = ship[2]
+        if status == "alive":
+            user_grid_data[y][x] = "B"
+        else:
+            user_grid_data[y][x] = "H"
+
+    # Show bot's misses on the grid
+    for miss in bot_misses:
+        x = miss[0]
+        y = miss[1]
+        user_grid_data[y][x] = "M"
+    
+    # Bot's Grid
+    # [DEBUG] Show bot's boats on the grid
+    if DEBUG_SHOW_BOT_BOATS:
+        for ship in bot_boats:
             x = ship[0]
             y = ship[1]
             status = ship[2]
             if status == "alive":
-                grid_data[y][x] = "B"
+                bot_grid_data[y][x] = "B"
             else:
-                grid_data[y][x] = "H"
+                bot_grid_data[y][x] = "H"
 
-        # Show bot's misses on the grid
-        for miss in bot_misses:
-            x = miss[0]
-            y = miss[1]
-            grid_data[y][x] = "M"
-    else:
-        print(" Bot's Grid:")
-        # [DEBUG] Show bot's boats on the grid
-        if DEBUG_SHOW_BOT_BOATS:
-            for ship in bot_boats:
-                x = ship[0]
-                y = ship[1]
-                status = ship[2]
-                if status == "alive":
-                    grid_data[y][x] = "B"
-                else:
-                    grid_data[y][x] = "H"
+    # Show user's misses on the grid
+    for miss in user_misses:
+        x = miss[0]
+        y = miss[1]
+        bot_grid_data[y][x] = "M"
+    
+    transformed_user_grid_data = inject_border_row(user_grid_data, GRID_SIZE_X, GRID_SIZE_Y)
+    transformed_bot_grid_data = inject_border_row(bot_grid_data, GRID_SIZE_X, GRID_SIZE_Y)
 
-        # Show user's misses on the grid
-        for miss in user_misses:
-            x = miss[0]
-            y = miss[1]
-            grid_data[y][x] = "M"
-    
-    transformed_grid_data = inject_border_row(grid_data, GRID_SIZE_X, GRID_SIZE_Y)
-    
-    grid = generate_grid(GRID_SIZE_X + 1, GRID_SIZE_Y + 1, transformed_grid_data)
-    print(grid)
+    user_grid = generate_grid(GRID_SIZE_X + 1, GRID_SIZE_Y + 1, transformed_user_grid_data, title="User's Grid")
+    bot_grid = generate_grid(GRID_SIZE_X + 1, GRID_SIZE_Y + 1, transformed_bot_grid_data, title="Bot's Grid")
+
+    grids = merge_with_offset(user_grid, bot_grid, 2)
+    if grid_mode == "bot":
+        grids = merge_with_offset(bot_grid, user_grid, 2)
+    print(grids)
 
     if (not override_show_grid_mode):
         # Perform Automatic Actions
@@ -147,8 +153,5 @@ def show_game(override_show_grid_mode=None):
         continue_key = input("\nPress enter to continue, or X to go back to Main Menu ")
         if continue_key.lower() == "x":
             return ["change_screen", "menu"]
-        
-    if override_show_grid_mode == "bot":
-        return show_game(override_show_grid_mode="user")
     
     return ["game", "continue"]
