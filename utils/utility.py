@@ -85,7 +85,7 @@ def generate_place_ships_validator(user_boats):
         boat = check_hit(user_boats, x, y)
         if boat:
             print("This space has already been taken!")
-            return True
-        return False
+            return False
+        return True
 
     return validator
