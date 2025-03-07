@@ -27,11 +27,14 @@ def add_line_to_grid(grid: str, line: str):
         grid += line
     return grid
 
-def generate_grid(x_size: int, y_size: int, values, has_borders: bool = True, title: str = None):
+def generate_grid(x_size: int, y_size: int, values, has_borders: bool = True, title: str = None, special_boxes: list = None):
     grid = ""
     
     # Calculate total width
     total_width = (x_size * BOX_SIZE) + (x_size - 1) + (2 if has_borders else 0)
+    
+    if special_boxes is None:
+        special_boxes = []
     
     # Add title if provided
     if title:
@@ -79,6 +82,25 @@ def generate_grid(x_size: int, y_size: int, values, has_borders: bool = True, ti
 
             # Center the value and add padding
             value = value.center(BOX_SIZE, " ")
+
+            # Check if this box should be highlighted
+            for box in special_boxes:
+                target_x = box[0]
+                target_y = box[1]
+                mode = box[2]
+
+                if (target_x == x and target_y == y):
+                    if mode == "invert_background":
+                        value = f"\033[7m{value}\033[0m"
+                    elif mode == "bold_text":
+                        value = f"\033[1m{value}\033[0m"
+                    elif mode == "yellow_background":
+                        value = f"\033[43m{value}\033[0m"
+                    elif mode == "green_background":
+                        value = f"\033[42m{value}\033[0m"
+                    elif mode == "red_background":
+                        value = f"\033[41m{value}\033[0m"
+                    break
 
             # Add the value to line
             line += value

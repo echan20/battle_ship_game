@@ -36,11 +36,24 @@ def inject_border_row(grid_data, rows, columns):
 
     return grid_data
 
-def show_game(override_show_grid_mode=None):
+grid_instructions = "\n".join([
+    "\033[42m Green Text shows alive boats. \033[0m",
+    "\033[41m Red Text shows sunk boats. \033[0m",
+    "\033[7m White text shows last target. \033[0m",
+])
+
+def show_game(override_show_grid_mode=None, user_grid_special_boxes=None, bot_grid_special_boxes=None):
     clear_console()
 
+    # Initialize variables needed
     skip_continue_prompt = False
     show_updated_grid = False
+
+    # Cannot define up there, the references are reused in the next function call, which is not ideal.
+    if (not user_grid_special_boxes):
+        user_grid_special_boxes = []
+    if (not bot_grid_special_boxes):
+        bot_grid_special_boxes = []
 
     # Load game data
     game_data = load_game_data()
@@ -68,8 +81,10 @@ def show_game(override_show_grid_mode=None):
         status = ship[2]
         if status == "alive":
             user_grid_data[y][x] = "B"
+            user_grid_special_boxes.append([x + 1, y + 1, "green_background"])
         else:
             user_grid_data[y][x] = "H"
+            user_grid_special_boxes.append([x + 1, y + 1, "red_background"])
 
     # Show bot's misses on the grid
     for miss in bot_misses:
@@ -79,15 +94,19 @@ def show_game(override_show_grid_mode=None):
     
     # Bot's Grid
     # [DEBUG] Show bot's boats on the grid
-    if DEBUG_SHOW_BOT_BOATS:
-        for ship in bot_boats:
-            x = ship[0]
-            y = ship[1]
-            status = ship[2]
-            if status == "alive":
+    for ship in bot_boats:
+        x = ship[0]
+        y = ship[1]
+        status = ship[2]
+        if status == "alive":
+            # Show bot's boats only if debug mode is enabled
+            if DEBUG_SHOW_BOT_BOATS:
                 bot_grid_data[y][x] = "B"
-            else:
-                bot_grid_data[y][x] = "H"
+                bot_grid_special_boxes.append([x + 1, y + 1, "green_background"])
+        else:
+            # Show bot's sunk boats even when debug is off
+            bot_grid_data[y][x] = "H"
+            bot_grid_special_boxes.append([x + 1, y + 1, "red_background"])
 
     # Show user's misses on the grid
     for miss in user_misses:
@@ -95,16 +114,22 @@ def show_game(override_show_grid_mode=None):
         y = miss[1]
         bot_grid_data[y][x] = "M"
     
+    # Inject border rows & render grids
     transformed_user_grid_data = inject_border_row(user_grid_data, GRID_SIZE_X, GRID_SIZE_Y)
     transformed_bot_grid_data = inject_border_row(bot_grid_data, GRID_SIZE_X, GRID_SIZE_Y)
 
-    user_grid = generate_grid(GRID_SIZE_X + 1, GRID_SIZE_Y + 1, transformed_user_grid_data, title="User's Grid")
-    bot_grid = generate_grid(GRID_SIZE_X + 1, GRID_SIZE_Y + 1, transformed_bot_grid_data, title="Bot's Grid")
+    user_grid = generate_grid(GRID_SIZE_X + 1, GRID_SIZE_Y + 1, transformed_user_grid_data, title="User's Grid", special_boxes=user_grid_special_boxes)
+    bot_grid = generate_grid(GRID_SIZE_X + 1, GRID_SIZE_Y + 1, transformed_bot_grid_data, title="Bot's Grid", special_boxes=bot_grid_special_boxes)
 
+    # Reset the special boxes after rendering the grid
+    user_grid_special_boxes = []
+    bot_grid_special_boxes = []
+
+    # Merge grids and print to console
     grids = merge_with_offset(user_grid, bot_grid, 2)
     if grid_mode == "bot":
         grids = merge_with_offset(bot_grid, user_grid, 2)
-    print(grids)
+    print(grid_instructions + "\n\n" + grids + "\n")
 
     if (not override_show_grid_mode):
         # Perform Automatic Actions
@@ -131,6 +156,8 @@ def show_game(override_show_grid_mode=None):
             else:
                 print("Miss!")
                 user_misses.append([x, y])
+            
+            bot_grid_special_boxes.append([x + 1, y + 1, "invert_background"])
 
             # Bot's turn to hit
             x, y = generate_random_grid_space(GRID_SIZE_X, GRID_SIZE_Y)
@@ -140,13 +167,19 @@ def show_game(override_show_grid_mode=None):
             else:
                 bot_misses.append([x, y])
 
+            user_grid_special_boxes.append([x + 1, y + 1, "invert_background"])
+
             show_updated_grid = True
 
     # Save game data
     save_game_data(user_boats, user_misses, bot_boats, bot_misses)
 
     if show_updated_grid:
-        return show_game(override_show_grid_mode=grid_mode)
+        return show_game(
+            override_show_grid_mode=grid_mode,
+            user_grid_special_boxes=user_grid_special_boxes,
+            bot_grid_special_boxes=bot_grid_special_boxes
+        )
 
     # Ask for continue
     if (skip_continue_prompt != True):
