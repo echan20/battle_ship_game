@@ -1,8 +1,7 @@
-import config
 import string
 from utils.grid import generate_grid
 from utils.output import print, clear_console
-from utils.utility import prompt_for_grid_space, generate_empty_grid_data, generate_place_ships_validator, generate_random_grid_space, check_hit, merge_with_offset
+from utils.utility import prompt_for_grid_space, generate_empty_grid_data, generate_place_ships_validator, generate_random_grid_space, check_hit, merge_with_offset, all_boats_dead
 from utils.saving import load_game_data, save_game_data
 from config import AMOUNT_OF_BOATS, GRID_SIZE_X, GRID_SIZE_Y, DEBUG_SHOW_BOT_BOATS
 
@@ -131,6 +130,21 @@ def show_game(override_show_grid_mode=None, user_grid_special_boxes=None, bot_gr
         grids = merge_with_offset(bot_grid, user_grid, 2)
     print(grid_instructions + "\n\n" + grids + "\n")
 
+    # Check win
+    won = False
+    if len(bot_boats) > 0 and all_boats_dead(bot_boats):
+        print("🎉 Congratulations, you won!")
+        won = True
+    
+    if len(user_boats) > 0 and all_boats_dead(user_boats):
+        print("🎉 Bot won, better luck next time!")
+        won = True
+
+    if won:
+        input("Press enter to return to menu: ")
+        return ["change_screen", "menu"]
+    
+    # Actions
     if (not override_show_grid_mode):
         # Perform Automatic Actions
         while len(bot_boats) < AMOUNT_OF_BOATS:
@@ -151,7 +165,7 @@ def show_game(override_show_grid_mode=None, user_grid_special_boxes=None, bot_gr
             x, y = prompt_for_grid_space()
             boat = check_hit(bot_boats, x, y)
             if boat:
-                boat[2] = "Dead"
+                boat[2] = "dead"
                 print("Hit!")
             else:
                 print("Miss!")
@@ -163,7 +177,7 @@ def show_game(override_show_grid_mode=None, user_grid_special_boxes=None, bot_gr
             x, y = generate_random_grid_space(GRID_SIZE_X, GRID_SIZE_Y)
             boat = check_hit(user_boats, x, y)
             if boat:
-                boat[2] = "Dead"
+                boat[2] = "dead"
             else:
                 bot_misses.append([x, y])
 

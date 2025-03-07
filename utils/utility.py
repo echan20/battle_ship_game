@@ -112,3 +112,10 @@ def merge_with_offset(str1, str2, offset):
     # Merge line-by-line with offset
     merged = [f"{line1}{' ' * offset}{line2}" for line1, line2 in zip(lines1, lines2)]
     return '\n'.join(merged)
+
+def all_boats_dead(boats):
+    for boat in boats:
+        status = boat[2]
+        if status != "dead":
+            return False
+    return True
