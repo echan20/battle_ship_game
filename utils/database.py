@@ -40,4 +40,8 @@ class db:
     def delete(self, key: str):
         db_dir = self.db_dir
 
-        os.remove(f"{db_dir}/{key}.json")
+        try:
+            os.remove(f"{db_dir}/{key}.json")
+        except FileNotFoundError:
+            # File doesn't exist, which is fine for deletion
+            pass
