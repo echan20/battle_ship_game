@@ -1,7 +1,7 @@
 import string
 from utils.grid import generate_grid
 from utils.output import print, clear_console
-from utils.utility import prompt_for_grid_space, generate_empty_grid_data, generate_place_ships_validator, generate_random_grid_space, check_hit, merge_with_offset, all_boats_dead
+from utils.utility import prompt_for_grid_space, generate_empty_grid_data, generate_place_ships_validator, generate_random_grid_space, check_hit, merge_with_offset, all_boats_dead, annotate_text
 from utils.saving import load_game_data, save_game_data
 from config import AMOUNT_OF_BOATS, GRID_SIZE_X, GRID_SIZE_Y, DEBUG_SHOW_BOT_BOATS
 
@@ -43,9 +43,9 @@ def inject_border_row(grid_data, rows, columns, special_boxes=None):
     return grid_data
 
 grid_instructions = "\n".join([
-    "\033[42m Green Text shows alive boats. \033[0m",
-    "\033[41m Red Text shows sunk boats. \033[0m",
-    "\033[7m White text shows last target. \033[0m",
+    annotate_text(" Green Text shows alive boats. ", ["green_background"]),
+    annotate_text(" Red Text shows sunk boats. ", ["red_background"]),
+    annotate_text(" White text shows last target. ", ["invert_background"]),
 ])
 
 def show_game(override_show_grid_mode=None, user_grid_special_boxes=None, bot_grid_special_boxes=None):

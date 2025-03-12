@@ -119,3 +119,28 @@ def all_boats_dead(boats):
         if status != "dead":
             return False
     return True
+
+ANNOTATE_OPTIONS = [
+    ["invert_background", "7"],
+    ["bold_text", "1"],
+    ["yellow_background", "43"],
+    ["green_background", "42"],
+    ["red_background", "41"],
+]
+# uses ANSI to print colored text
+def annotate_text(text: str, options):
+    annotate_codes = []
+
+    for option_data in ANNOTATE_OPTIONS:
+        option = option_data[0]
+        code = option_data[1]
+
+        if option in options:
+            annotate_codes.append(code)
+
+    if len(annotate_codes) > 0:
+        codes = ";".join(annotate_codes)
+        annotated_text = f'\033[{codes}m{text}\033[0m'
+        return annotated_text
+    else:
+        return text

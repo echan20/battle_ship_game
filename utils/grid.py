@@ -1,3 +1,5 @@
+from utils.utility import annotate_text
+
 # Grid Configuration
 TOP_BORDER = "─"
 TOP_MIDDLE_BORDER = "┬"
@@ -87,19 +89,10 @@ def generate_grid(x_size: int, y_size: int, values, has_borders: bool = True, ti
             for box in special_boxes:
                 target_x = box[0]
                 target_y = box[1]
-                mode = box[2]
+                modes = box[2]
 
                 if (target_x == x and target_y == y):
-                    if mode == "invert_background":
-                        value = f"\033[7m{value}\033[0m"
-                    elif mode == "bold_text":
-                        value = f"\033[1m{value}\033[0m"
-                    elif mode == "yellow_background":
-                        value = f"\033[43m{value}\033[0m"
-                    elif mode == "green_background":
-                        value = f"\033[42m{value}\033[0m"
-                    elif mode == "red_background":
-                        value = f"\033[41m{value}\033[0m"
+                    value = annotate_text(value, modes)
                     break
 
             # Add the value to line
