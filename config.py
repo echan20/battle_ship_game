@@ -1,6 +1,6 @@
 # Main
-DEBUG_MODE = True
-DEBUG_SHOW_BOT_BOATS = True
+DEBUG_MODE = False
+DEBUG_SHOW_BOT_BOATS = False
 
 # Grid
 GRID_SIZE_X = 8
