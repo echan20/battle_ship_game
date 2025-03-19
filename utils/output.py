@@ -7,6 +7,7 @@ def clear_console():
     print("\n" * 100)
 
 def print(*args):
+    # If needed, could be used to validate or inject information into prints.
     return _print(*args)
 
 def debugPrint(*args):
