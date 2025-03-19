@@ -144,7 +144,7 @@ def show_game(override_show_grid_mode=None, user_grid_special_boxes=None, bot_gr
         won = True
     
     if len(user_boats) > 0 and all_boats_dead(user_boats):
-        print("🎉 Bot won, better luck next time!")
+        print("😭 Bot won, better luck next time!")
         won = True
 
     if won:
@@ -156,7 +156,8 @@ def show_game(override_show_grid_mode=None, user_grid_special_boxes=None, bot_gr
         # Perform Automatic Actions
         while len(bot_boats) < AMOUNT_OF_BOATS:
             x, y = generate_random_grid_space(GRID_SIZE_X, GRID_SIZE_Y)
-            bot_boats.append([x, y, "alive"])
+            if not check_hit(bot_boats, x, y):
+                bot_boats.append([x, y, "alive"])
 
         # Perform User Actions
         if len(user_boats) < AMOUNT_OF_BOATS:
@@ -181,12 +182,20 @@ def show_game(override_show_grid_mode=None, user_grid_special_boxes=None, bot_gr
             bot_grid_special_boxes.append([x + 1, y + 1, "invert_background"])
 
             # Bot's turn to hit
-            x, y = generate_random_grid_space(GRID_SIZE_X, GRID_SIZE_Y)
-            boat = check_hit(user_boats, x, y)
-            if boat:
-                boat[2] = "dead"
-            else:
-                bot_misses.append([x, y])
+            bot_targetted = False
+            while bot_targetted == False:
+                x, y = generate_random_grid_space(GRID_SIZE_X, GRID_SIZE_Y)
+                boat = check_hit(user_boats, x, y)
+
+                if boat == "dead" or check_hit(bot_misses, x, y):
+                    continue
+
+                if boat:
+                    boat[2] = "dead"
+                else:
+                    bot_misses.append([x, y])
+                
+                bot_targetted = True
 
             user_grid_special_boxes.append([x + 1, y + 1, "invert_background"])
 
